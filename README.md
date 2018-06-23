@@ -1,7 +1,7 @@
 # WResT : Website Response Time Calculator
 ___
 WResT Calculator is an automation tool made with python to calculate page load/ page render time for websites.
-It make use of Python-Selenium to automate the process and uses W3C Navigation APIs to calculate the timings.
+It makes use of Python-Selenium to automate the process and uses W3C Navigation APIs to calculate the timings.
 The results are saved in a mysql database for futher analysis and visualization.
 ##### About
 * **Sreenath Sivadas** - *Initial work* - [sreesdas](https://github.com/sreesdas)
@@ -57,7 +57,7 @@ Edit the config.json file to edit the websites you want to test along with crede
 			"username": "YOUR_USERNAME",
 			"pass_elem": "pass",
 			"password": "YOUR_PASSWORD",
-			"submit_elem": "u_0_2",
+			"submit_elem": "loginbutton",
 			"captcha": ""
 		  }
         }
@@ -73,11 +73,11 @@ python main.py
 ```
 
 ##### bundle as an exe file
-I am using pyinstaller to generate exe file becuase its very easy to use and flexible.
-There are plenty of other tools available like py2exe or cx-freeze
+I am using pyinstaller to freeze python scripts to stand-alone executables because its easy to use and it builds smaller file sizes.
+Other alternatives are also available like py2exe or cx-freeze.
 
 ```
-pyinstaller --onefile --add-data "chromedriver;." main.py
+pyinstaller --onefile --add-data "chromedriver;." --add-data "config.json;." --icon="logo.ico" main.py
 ```
 
 ## Acknowledgments
