@@ -1,24 +1,12 @@
 {
   "version": "0.1",
-  "work_center": "delhi",
   "sites": [
-    { "name": "ONGC Reports",
-      "url": "https://reports.ongc.co.in",
-      "login": {
-        "user_elem": "userId",
-        "username": "128238",
-        "pass_elem": "pass",
-        "password": "SRee56##",
-        "submit_elem": "Submit",
-        "captcha": ""
-      }
-    },
     { "name": "Google",
       "url": "https://google.co.in",
       "login": ""
     },
-    { "name": "ONGC Disha",
-      "url": "https://mail.ongc.co.in",
+    { "name": "GMail",
+      "url": "https://gmail.com",
       "login": ""
     }
   ],
@@ -27,8 +15,5 @@
     "username": "root",
     "password": "",
     "domain": "localhost"
-  },
-  "automation": {
-    "periodicity": "1000s"
   }
 }
