@@ -1,4 +1,5 @@
 *.pyc
+config.json
 
 build/
 dist/
