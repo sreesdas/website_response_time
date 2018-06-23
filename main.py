@@ -71,19 +71,7 @@ for each in sources:
 
         loginBtn.click()
 
-        #if cred['captcha'] != "":
-        #    captcha = cred['captcha']
-        #    num1 = driver.find_element_by_id(captcha['num1_id']).get_attribute('value')
-        #    num2 = driver.find_element_by_id(captcha['num2_id']).get_attribute('value')
-        #    sign = driver.find_element_by_id(captcha['math_sign_id']).get_attribute('value')
 
-        #    out = eval(num1 + sign + num2)
-        #    driver.find_element_by_id(captcha['userinput_id']).send_keys(out)
-
-        #    loginBtn.click()
-
-        #else:
-        #    loginBtn.click()
 
         navigationStart = driver.execute_script("return window.performance.timing.navigationStart")
         loadEventEnd = driver.execute_script("return window.performance.timing.loadEventEnd")

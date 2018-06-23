@@ -51,8 +51,15 @@ Edit the config.json file to edit the websites you want to test along with crede
   "version": "0.1",
   "sites": [
     	{ "name": "Facebook",
-          "url": "https://facebook.comn",
-          "login": ""
+          "url": "https://www.facebook.com",
+          "login": {
+			"user_elem": "name",
+			"username": "YOUR_USERNAME",
+			"pass_elem": "pass",
+			"password": "YOUR_PASSWORD",
+			"submit_elem": "u_0_2",
+			"captcha": ""
+		  }
         }
     ]
 }
@@ -63,6 +70,14 @@ And run the main.py file
 ```
 cd website_response_time
 python main.py
+```
+
+##### bundle as an exe file
+I am using pyinstaller to generate exe file becuase its very easy to use and flexible.
+There are plenty of other tools available like py2exe or cx-freeze
+
+```
+pyinstaller --onefile --add-data "chromedriver;." main.py
 ```
 
 ## Acknowledgments
