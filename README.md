@@ -14,7 +14,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
-__**Note:*__ *this project is made for windows platform, for linux, checkout this [project](https://github.com/cgoldberg/pageloadtimer)*
+__*Note:__ *this project is made for windows platform, for linux, checkout this [project](https://github.com/cgoldberg/pageloadtimer)*
 
 ### Prerequisites
 
