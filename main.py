@@ -1,96 +1,103 @@
-"""
-
-Performance Timing Events flow
-navigationStart -> redirectStart -> redirectEnd -> fetchStart -> domainLookupStart -> domainLookupEnd
--> connectStart -> connectEnd -> requestStart -> responseStart -> responseEnd
--> domLoading -> domInteractive -> domContentLoaded -> domComplete -> loadEventStart -> loadEventEnd
-
-"""
-
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-
 import config_reader
 import mysql_connector as mysql_db
-import sys
-
-if getattr(sys, 'frozen', False):
-    config_path = sys._MEIPASS + "\\config.json"
-    chrome_driver_path = sys._MEIPASS + "\\chromedriver.exe"
-else:
-    config_path = "config.json"
-    chrome_driver_path = "chromedriver.exe"
+import sys, time
 
 
-chrome_options = webdriver.ChromeOptions()
-chrome_options.add_argument('--disable-cache')
-# chrome_options.add_argument('--incognito')
-chrome_options.add_argument("--headless")
-chrome_options.add_argument("--window-size=1920x1080")
-driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver_path)
+class ResponseTime:
 
-# db = mysql_db.DbConnector("root", "", "response_time")
+    def __init__(self):
+        self.get_cwd()
+        self.init_chrome()
+        self.init_config()
 
-f = open('report.txt', 'a') # to be deleted in prod
-f.write("\n\nRunning the offline version without db..\n\n") # to be deleted in prod
+        self.pageLoadTime = 0
+        self.pageRenderTime = 0
+        self.reqResTime = 0
+        self.navigationTime = 0
 
-config = config_reader.ConfigReader(config_path)
-sources = config.get_urls()
+    def get_cwd(self):
+        if getattr(sys, 'frozen', False):
+            self.config_path = sys._MEIPASS + "\\config.json"
+            self.chrome_driver_path = sys._MEIPASS + "\\chromedriver.exe"
+        else:
+            self.config_path = "config.json"
+            self.chrome_driver_path = "chromedriver.exe"
 
-for each in sources:
+    def init_chrome(self):
+        self.chrome_options = webdriver.ChromeOptions()
+        self.chrome_options.add_argument('--disable-cache')
+        # chrome_options.add_argument('--incognito')
+        # chrome_options.add_argument("--headless")
+        # chrome_options.add_argument("--window-size=1920x1080")
+        self.driver = webdriver.Chrome(chrome_options=self.chrome_options, executable_path=self.chrome_driver_path)
 
-    driver.get(each['url'])
+    def init_config(self):
+        self.config = config_reader.ConfigReader(self.config_path)
+        db_conf = self.config.get_db_details()
+        self.db = mysql_db.DbConnector(db_conf['username'], db_conf['password'], db_conf['db'])
 
-    navigationStart = driver.execute_script("return window.performance.timing.navigationStart")
-    loadEventEnd = driver.execute_script("return window.performance.timing.loadEventEnd")
-    requestStart = driver.execute_script("return window.performance.timing.requestStart")
-    responseStart = driver.execute_script("return window.performance.timing.responseStart")
-    responseEnd = driver.execute_script("return window.performance.timing.responseEnd")
-    domLoading = driver.execute_script("return window.performance.timing.domLoading")
-    domComplete = driver.execute_script("return window.performance.timing.domComplete")
+    def calculate_timings(self):
+        navigationStart = self.driver.execute_script("return window.performance.timing.navigationStart")
+        loadEventEnd = self.driver.execute_script("return window.performance.timing.loadEventEnd")
+        requestStart = self.driver.execute_script("return window.performance.timing.requestStart")
+        responseStart = self.driver.execute_script("return window.performance.timing.responseStart")
+        responseEnd = self.driver.execute_script("return window.performance.timing.responseEnd")
+        domLoading = self.driver.execute_script("return window.performance.timing.domLoading")
+        domComplete = self.driver.execute_script("return window.performance.timing.domComplete")
 
-    pageLoadTime = loadEventEnd - navigationStart
-    pageRenderTime = domComplete - domLoading
-    reqResTime = responseEnd - requestStart
-    navigationTime = 0
+        self.pageLoadTime = loadEventEnd - navigationStart
+        self.pageRenderTime = domComplete - domLoading
+        self.reqResTime = responseEnd - requestStart
 
-    f.write(" ----- %s ----- " % each['name'])
-    f.write("Request-Response Time: %s sec" % reqResTime)
-    f.write("Page Render Time: %s sec" % pageRenderTime)
-    f.write("Total Page Load Time: %s sec" % pageLoadTime)
+    def navigation_timings(self, each):
 
-    if each['login'] != "":
         cred = each['login']
 
         try:
-            cpf = driver.find_element_by_name(cred['user_elem'])
+            cpf = self.driver.find_element_by_name(cred['user_elem'])
             cpf.send_keys(cred['username'])
         except NoSuchElementException:
-            continue
+            return 0
 
         try:
-            password = driver.find_element_by_name(cred['pass_elem'])
+            password = self.driver.find_element_by_name(cred['pass_elem'])
             password.send_keys(cred['password'])
         except NoSuchElementException:
-            continue
+            return 0
 
         try:
-            loginBtn = driver.find_element_by_name(cred['submit_elem'])
+            loginBtn = self.driver.find_element_by_name(cred['submit_elem'])
         except NoSuchElementException:
-            loginBtn = driver.find_element_by_id(cred['submit_elem'])
+            loginBtn = self.driver.find_element_by_id(cred['submit_elem'])
 
         loginBtn.click()
 
+        navigationStart = self.driver.execute_script("return window.performance.timing.navigationStart")
+        loadEventEnd = self.driver.execute_script("return window.performance.timing.loadEventEnd")
 
-        navigationStart = driver.execute_script("return window.performance.timing.navigationStart")
-        loadEventEnd = driver.execute_script("return window.performance.timing.loadEventEnd")
+        self.navigationTime = (loadEventEnd - navigationStart)
 
-        navigationTime = (loadEventEnd - navigationStart )
-        f.write( "Navigation Time: %s sec" % navigationTime )
+    def run_test(self):
+        sources = self.config.get_urls()
+        for each in sources:
+            self.driver.get(each['url'])
 
-    # db.write(each['name'], reqResTime, pageRenderTime, pageLoadTime, navigationTime)
+            if self.driver.title == each['title']:
+                self.calculate_timings()
+                if each['login'] != "":
+                    self.navigation_timings(each)
+            else:
+                return False
 
-        f.write("\n")
+            self.db.write(each['name'], self.reqResTime, self.pageRenderTime, self.pageLoadTime, self.navigationTime)
 
-f.close()
-driver.quit()
+        self.driver.quit()
+        return True
+
+
+if __name__ == "__main__":
+
+    t = ResponseTime()
+    print t.run_test()
