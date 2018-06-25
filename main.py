@@ -17,8 +17,8 @@ class ResponseTime:
         self.init_config()
 
         self.pageLoadTime = 0
-        self.pageRenderTime = 0
-        self.reqResTime = 0
+        # self.pageRenderTime = 0
+        # self.reqResTime = 0
         self.navigationTime = 0
 
         self.hostname = socket.gethostname()
@@ -113,7 +113,7 @@ class ResponseTime:
             else:
                 return False
 
-            # self.db.write(each['name'], self.reqResTime, self.pageRenderTime, self.pageLoadTime, self.navigationTime)
+            self.db.write(self.hostname, self.ip, each['name'], self.pageLoadTime, self.navigationTime)
 
         self.driver.quit()
         return True

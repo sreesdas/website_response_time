@@ -13,8 +13,8 @@ class DbConnector:
         data = self.cursor.fetchone()
         return data
 
-    def write(self, site, req_time, render_time, load_time, nav_time):
-        sql = "INSERT INTO test_delhi(SITE, REQ_TIME, PAGE_RENDER_TIME, LOAD_TIME, NAV_TIME) VALUES('%s',%s,%s,%s,%s)" % (site, req_time, render_time, load_time, nav_time)
+    def write(self, host, ip, site, load_time, nav_time):
+        sql = "INSERT INTO qa_delhi(HOSTNAME, IP, SITE, LOAD_TIME, NAV_TIME) VALUES('%s',%s,%s,%s,%s)" % (host, ip, site, load_time, nav_time)
         try:
             self.cursor.execute(sql)
             self.db.commit()
