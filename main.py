@@ -12,7 +12,7 @@ from selenium.common.exceptions import NoSuchElementException
 
 import config_reader
 import mysql_connector as mysql_db
-import sys
+import sys, platform
 
 if getattr(sys, 'frozen', False):
     config_path = sys._MEIPASS + "\\config.json"
@@ -28,6 +28,8 @@ chrome_options.add_argument('--disable-cache')
 chrome_options.add_argument("--headless")
 chrome_options.add_argument("--window-size=1920x1080")
 driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=chrome_driver_path)
+
+hostname = platform.node()
 
 # db = mysql_db.DbConnector("root", "", "response_time")
 
@@ -54,10 +56,8 @@ for each in sources:
     reqResTime = responseEnd - requestStart
     navigationTime = 0
 
-    f.write(" ----- %s ----- " % each['name'])
-    f.write("Request-Response Time: %s sec" % reqResTime)
-    f.write("Page Render Time: %s sec" % pageRenderTime)
-    f.write("Total Page Load Time: %s sec" % pageLoadTime)
+    f.write(" ----- %s ----- \n" % each['name'])
+    f.write("LoginPage Load Time: %s ms\n" % pageLoadTime)
 
     if each['login'] != "":
         cred = each['login']
@@ -79,18 +79,29 @@ for each in sources:
         except NoSuchElementException:
             loginBtn = driver.find_element_by_id(cred['submit_elem'])
 
-        loginBtn.click()
+        if cred['captcha'] != "":
+            captcha = cred['captcha']
+            num1 = driver.find_element_by_id(captcha['num1_id']).get_attribute('value')
+            num2 = driver.find_element_by_id(captcha['num2_id']).get_attribute('value')
+            sign = driver.find_element_by_id(captcha['math_sign_id']).get_attribute('value')
 
+            out = eval(num1 + sign + num2)
+            driver.find_element_by_id(captcha['userinput_id']).send_keys(out)
+
+            loginBtn.click()
+
+        else:
+            loginBtn.click()
 
         navigationStart = driver.execute_script("return window.performance.timing.navigationStart")
         loadEventEnd = driver.execute_script("return window.performance.timing.loadEventEnd")
 
         navigationTime = (loadEventEnd - navigationStart )
-        f.write( "Navigation Time: %s sec" % navigationTime )
+        f.write( "HomePage Load Time: %s ms\n" % navigationTime )
 
     # db.write(each['name'], reqResTime, pageRenderTime, pageLoadTime, navigationTime)
 
-        f.write("\n")
+    f.write("\n")
 
 f.close()
 driver.quit()

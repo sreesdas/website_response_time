@@ -1,26 +1,61 @@
 {
   "version": "0.1",
+  "work_center": "delhi",
   "sites": [
-    	{ "name": "Facebook",
-          "url": "https://www.facebook.com",
-          "login": {
-			"user_elem": "email",
-			"username": "YOUR_USERNAME",
-			"pass_elem": "pass",
-			"password": "YOUR_PASSWORD",
-			"submit_elem": "loginbutton",
-			"captcha": ""
-		  }
-        },
-        {
-          "name": "Google",
-          "url": "https://google.com",
-          "login": ""
-        },
-        {
-          "name": "Yahoo",
-          "url": "https://www.yahoo.com",
-          "login": ""
+    { "name": "ONGC Reports",
+      "url": "https://reports.ongc.co.in",
+      "title": "Reports login",
+      "login": {
+        "user_elem": "userId",
+        "username": "128238",
+        "pass_elem": "pass",
+        "password": "SRee56##",
+        "submit_elem": "Submit",
+        "captcha": ""
+      }
+    },
+    { "name": "ONGC Webice",
+      "url": "https://webice.ongc.co.in",
+      "title": "ONGC Webice",
+      "login": {
+        "user_elem": "j_username",
+        "username": "128238",
+        "pass_elem": "j_password",
+        "password": "SRee56##@i",
+        "submit_elem": "uidPasswordLogon",
+        "captcha": ""
+      }
+    },
+    { "name": "ONGC Disha",
+      "url": "https://disha.ongc.co.in",
+      "title": "Process Portal",
+      "login": {
+        "user_elem": "j_username",
+        "username": "128238",
+        "pass_elem": "j_password",
+        "password": "SRee56##",
+        "submit_elem": "shadowBtn",
+        "captcha": {
+          "num1_id": "captcha1",
+          "num2_id": "captcha2",
+          "math_sign_id": "maths_sign",
+          "userinput_id": "inputText"
         }
-    ]
+      }
+    },
+    { "name": "Google",
+      "title": "Google",
+      "url": "https://google.co.in",
+      "login": ""
+    }
+  ],
+  "database": {
+    "db": "db",
+    "username": "root",
+    "password": "",
+    "domain": "localhost"
+  },
+  "automation": {
+    "periodicity": "1000s"
+  }
 }
