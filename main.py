@@ -106,7 +106,7 @@ class ResponseTime:
         for each in sources:
             self.driver.get(each['url'])
 
-            if self.driver.title == each['title']:
+            if self.driver.title in each['title']:
                 self.calculate_timings()
                 if each['login'] != "":
                     self.navigation_timings(each)

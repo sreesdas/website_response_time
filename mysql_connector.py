@@ -14,7 +14,8 @@ class DbConnector:
         return data
 
     def write(self, host, ip, site, load_time, nav_time):
-        sql = "INSERT INTO qa_delhi(HOSTNAME, IP, SITE, LOAD_TIME, NAV_TIME) VALUES('%s',%s,%s,%s,%s)" % (host, ip, site, load_time, nav_time)
+        sql = "INSERT INTO qa_delhi(HOSTNAME, IP, SITE, LOAD_TIME, NAV_TIME) VALUES('%s','%s','%s',%s,%s)" % (host, ip, site, load_time, nav_time)
+        print sql
         try:
             self.cursor.execute(sql)
             self.db.commit()
