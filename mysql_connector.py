@@ -3,8 +3,8 @@ import MySQLdb
 
 class DbConnector:
 
-    def __init__(self, username, password, db):
-        self.db = MySQLdb.connect("localhost", username, password, db)
+    def __init__(self, host, username, password, db):
+        self.db = MySQLdb.connect(host, username, password, db)
         self.cursor = self.db.cursor()
 
     def get_version(self):

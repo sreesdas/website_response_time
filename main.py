@@ -2,7 +2,11 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 import config_reader
 import mysql_connector as mysql_db
-import sys, time
+import sys, time, socket
+
+
+class DbConnectException(Exception):
+    pass
 
 
 class ResponseTime:
@@ -16,6 +20,9 @@ class ResponseTime:
         self.pageRenderTime = 0
         self.reqResTime = 0
         self.navigationTime = 0
+
+        self.hostname = socket.gethostname()
+        self.ip = socket.gethostbyname(self.hostname)
 
     def get_cwd(self):
         if getattr(sys, 'frozen', False):
@@ -36,20 +43,23 @@ class ResponseTime:
     def init_config(self):
         self.config = config_reader.ConfigReader(self.config_path)
         db_conf = self.config.get_db_details()
-        self.db = mysql_db.DbConnector(db_conf['username'], db_conf['password'], db_conf['db'])
+        try:
+            self.db = mysql_db.DbConnector(db_conf['hostname'], db_conf['username'], db_conf['password'], db_conf['db'])
+        except:
+            raise DbConnectException
 
     def calculate_timings(self):
         navigationStart = self.driver.execute_script("return window.performance.timing.navigationStart")
         loadEventEnd = self.driver.execute_script("return window.performance.timing.loadEventEnd")
-        requestStart = self.driver.execute_script("return window.performance.timing.requestStart")
-        responseStart = self.driver.execute_script("return window.performance.timing.responseStart")
-        responseEnd = self.driver.execute_script("return window.performance.timing.responseEnd")
-        domLoading = self.driver.execute_script("return window.performance.timing.domLoading")
-        domComplete = self.driver.execute_script("return window.performance.timing.domComplete")
+        # requestStart = self.driver.execute_script("return window.performance.timing.requestStart")
+        # responseStart = self.driver.execute_script("return window.performance.timing.responseStart")
+        # responseEnd = self.driver.execute_script("return window.performance.timing.responseEnd")
+        # domLoading = self.driver.execute_script("return window.performance.timing.domLoading")
+        # domComplete = self.driver.execute_script("return window.performance.timing.domComplete")
 
         self.pageLoadTime = loadEventEnd - navigationStart
-        self.pageRenderTime = domComplete - domLoading
-        self.reqResTime = responseEnd - requestStart
+        # self.pageRenderTime = domComplete - domLoading
+        # self.reqResTime = responseEnd - requestStart
 
     def navigation_timings(self, each):
 
@@ -72,7 +82,19 @@ class ResponseTime:
         except NoSuchElementException:
             loginBtn = self.driver.find_element_by_id(cred['submit_elem'])
 
-        loginBtn.click()
+        if cred['captcha'] != "":
+            captcha = cred['captcha']
+            num1 = self.driver.find_element_by_id(captcha['num1_id']).get_attribute('value')
+            num2 = self.driver.find_element_by_id(captcha['num2_id']).get_attribute('value')
+            sign = self.driver.find_element_by_id(captcha['math_sign_id']).get_attribute('value')
+
+            out = eval(num1 + sign + num2)
+            self.driver.find_element_by_id(captcha['userinput_id']).send_keys(out)
+
+            loginBtn.click()
+
+        else:
+            loginBtn.click()
 
         navigationStart = self.driver.execute_script("return window.performance.timing.navigationStart")
         loadEventEnd = self.driver.execute_script("return window.performance.timing.loadEventEnd")
@@ -91,7 +113,7 @@ class ResponseTime:
             else:
                 return False
 
-            self.db.write(each['name'], self.reqResTime, self.pageRenderTime, self.pageLoadTime, self.navigationTime)
+            # self.db.write(each['name'], self.reqResTime, self.pageRenderTime, self.pageLoadTime, self.navigationTime)
 
         self.driver.quit()
         return True
@@ -99,5 +121,12 @@ class ResponseTime:
 
 if __name__ == "__main__":
 
-    t = ResponseTime()
-    print t.run_test()
+    try:
+        t = ResponseTime()
+        while not (t.run_test()):
+            print 'no internet : continuing..'
+            time.sleep(20)
+    except DbConnectException:
+        print "Db Connect Error"
+
+
