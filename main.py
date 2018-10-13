@@ -99,7 +99,7 @@ for each in sources:
         navigationTime = (loadEventEnd - navigationStart )
         f.write( "HomePage Load Time: %s ms\n" % navigationTime )
 
-    # db.write(each['name'], reqResTime, pageRenderTime, pageLoadTime, navigationTime)
+    db.write(each['name'], reqResTime, pageRenderTime, pageLoadTime, navigationTime)
 
     f.write("\n")
 
