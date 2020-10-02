@@ -88,10 +88,7 @@ for each in sources:
             out = eval(num1 + sign + num2)
             driver.find_element_by_id(captcha['userinput_id']).send_keys(out)
 
-            loginBtn.click()
-
-        else:
-            loginBtn.click()
+        loginBtn.click()
 
         navigationStart = driver.execute_script("return window.performance.timing.navigationStart")
         loadEventEnd = driver.execute_script("return window.performance.timing.loadEventEnd")
